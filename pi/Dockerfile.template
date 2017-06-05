@@ -2,14 +2,16 @@
 # see more about dockerfile templates here: http://docs.resin.io/deployment/docker-templates/
 # and about resin base images here: http://docs.resin.io/runtime/resin-base-images/
 # Note the node:slim image doesn't have node-gyp
-FROM resin/%%RESIN_MACHINE_NAME%%-node:7.2.1-onbuild
+FROM resin/%%RESIN_MACHINE_NAME%%-node:7.10-onbuild
 
-COPY package.json /usr/src/app/
+WORKDIR /usr/src/app
 
-RUN DEBIAN_FRONTEND=noninteractive JOBS=MAX npm install --unsafe-perm
+COPY package.json package.json
 
-COPY . /usr/src/app
+RUN JOBS=MAX npm install --production --unsafe-perm && npm cache clean && rm -rf /tmp/*
 
-RUN ln -s /usr/src/app /app
+COPY . ./
+
+ENV INITSYSTEM on
 
 CMD ["npm", "start"]
